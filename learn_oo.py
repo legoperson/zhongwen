@@ -51,5 +51,5 @@ if st.button('Submit'):
     # 启动一个线程来更新文本
     update_thread = Thread(target=update_texts, args=(placeholder, valid_numbers, word_list))
     update_thread.start()
-
+   
  
