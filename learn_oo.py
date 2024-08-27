@@ -50,6 +50,6 @@ if st.button('Submit'):
     # index = numbers.index(selected_number)
 
     # 显示对应的文本
-    st.write(f"The selected text is: {word_list[selected_number]}")
+    st.markdown(f"<h1 style='color:black;'>{word_list[selected_number]}</h1>", unsafe_allow_html=True)
 
  
