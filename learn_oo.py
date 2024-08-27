@@ -67,4 +67,4 @@ if st.session_state.start_time is not None:
 
     # 自动刷新以便于5秒钟更新一次
     time.sleep(0.1)
-    st.experimental_rerun()
+    st.rerun()
