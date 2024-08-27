@@ -35,21 +35,17 @@ st.title('Number Selection App')
 input_number = st.number_input('Enter a number', min_value=0)
 
 if st.button('Submit'):
-    # 延迟5秒
-    time.sleep(5)
+    valid_numbers = [num for num in numbers if num < input_number]    
+    placeholder = st.empty()
 
-    # 筛选小于用户输入的数字
-    valid_numbers = [num for num in numbers if num < input_number]
-    
- 
+        # 无限循环自动更新文本
+    while True:
 
-    # 随机选择一个小于输入数字的值
-    selected_number = np.random.choice(valid_numbers)
+        # 随机选择一个小于输入数字的值
+        selected_number = np.random.choice(valid_numbers)
 
-    # # 获取选中的数字在原列表中的索引
-    # index = numbers.index(selected_number)
+        st.markdown(f"<h1 style='color:black;'>{word_list[selected_number]}</h1>", unsafe_allow_html=True)
 
-    # 显示对应的文本
-    st.markdown(f"<h1 style='color:black;'>{word_list[selected_number]}</h1>", unsafe_allow_html=True)
-
+        # 等待5秒
+        time.sleep(5)
  
