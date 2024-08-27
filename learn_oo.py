@@ -68,5 +68,5 @@ if st.session_state.start_time is not None:
     st.write(st.session_state.current_text)
 
     # 自动刷新以便于5秒钟更新一次
-    time.sleep(0.1)
+    time.sleep(1)
     st.rerun()
