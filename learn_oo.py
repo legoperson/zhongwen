@@ -10,6 +10,9 @@ import pandas as pd
 import streamlit as st
 import numpy as np
 import time
+from threading import Thread
+
+
 # 
 df = pd.read_csv('fast45.csv', header=None)
 df = df.dropna()
@@ -26,9 +29,17 @@ for i in range(0, len(df), 2):
 numbers = range(len(word_list))
 
 
- 
-# Streamlit 应用
- 
+def update_texts(placeholder, valid_numbers, texts):
+    """在一个线程中定期更新文本"""
+    while True:
+        # 随机选择一个小于输入数字的值
+        selected_number = np.random.choice(valid_numbers)
+        st.markdown(f"<h1 style='color:red;'>{word_list[selected_number]}</h1>", unsafe_allow_html=True)        
+        # 等待5秒
+        time.sleep(5)
+        
+        
+# Streamlit 应用 
 st.title('Number Selection App')
 
 # 用户输入
@@ -37,15 +48,8 @@ input_number = st.number_input('Enter a number', min_value=0)
 if st.button('Submit'):
     valid_numbers = [num for num in numbers if num < input_number]    
     placeholder = st.empty()
+    # 启动一个线程来更新文本
+    update_thread = Thread(target=update_texts, args=(placeholder, valid_numbers, word_list))
+    update_thread.start()
 
-        # 无限循环自动更新文本
-    while True:
-
-        # 随机选择一个小于输入数字的值
-        selected_number = np.random.choice(valid_numbers)
-
-        st.markdown(f"<h1 style='color:black;'>{word_list[selected_number]}</h1>", unsafe_allow_html=True)
-
-        # 等待5秒
-        time.sleep(5)
  
