@@ -41,10 +41,12 @@ def start_display():
 
 # 文本框输入
 max_index = st.text_input("请输入最大显示字的索引位置", value=str(st.session_state.max_index))
+min_index = st.text_input("请输入最小显示字的索引位置", value=str(0))
 if max_index.isdigit():
     st.session_state.max_index = int(max_index)
 else:
     st.warning("请输入有效的数字")
+st.session_state.min_index = int(min_index)
 
 # 创建按钮
 if st.button("开始显示"):
@@ -56,7 +58,7 @@ if st.session_state.start_time is not None:
     elapsed_time = current_time - st.session_state.start_time
     if elapsed_time >= 5:
         # 限制从前max_index个位置中选择
-        valid_text_list = text_list[:st.session_state.max_index]
+        valid_text_list = text_list[st.session_state.min_index:st.session_state.max_index]
         if valid_text_list:  # 确保valid_text_list非空
             st.session_state.current_text = random.choice(valid_text_list)
         else:
