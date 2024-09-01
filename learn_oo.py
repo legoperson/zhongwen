@@ -66,7 +66,7 @@ if st.session_state.start_time is not None:
         st.session_state.start_time = current_time  # 重置时间
 
     text = st.session_state.current_text
-    font_size = 24
+    font_size = 30
     st.markdown(f'<p style="font-size:{font_size}px;">{text}</p>', unsafe_allow_html=True)
     # 自动刷新以便于5秒钟更新一次
     time.sleep(1)
