@@ -1,6 +1,5 @@
 os
 pandas
-streamlit
 numpy
 time
 threading
