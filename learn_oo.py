@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 import numpy as np
 import time
 import random
@@ -189,52 +190,74 @@ with display_container:
         
         # 添加语音合成功能
         if st.session_state.trigger_speech:
-            st.markdown(
-                f"""
+            # 使用组件方式触发语音
+            speech_html = f"""
+            <div id="speech-container">
                 <script>
-                if ('speechSynthesis' in window) {{
-                    // 停止当前的语音
-                    window.speechSynthesis.cancel();
-                    
-                    // 创建新的语音
-                    const utterance = new SpeechSynthesisUtterance('{st.session_state.current_text}');
-                    utterance.lang = 'zh-CN';  // 设置为中文
-                    utterance.rate = 0.6;      // 语速慢一点 (0.1-10, 默认1)
-                    utterance.pitch = 1;       // 音调
-                    utterance.volume = 1;      // 音量
-                    
-                    // 开始朗读
-                    window.speechSynthesis.speak(utterance);
-                }} else {{
-                    console.log('浏览器不支持语音合成');
+                function speakText() {{
+                    if ('speechSynthesis' in window) {{
+                        // 确保先停止当前语音
+                        window.speechSynthesis.cancel();
+                        
+                        setTimeout(() => {{
+                            const utterance = new SpeechSynthesisUtterance('{st.session_state.current_text}');
+                            utterance.lang = 'zh-CN';
+                            utterance.rate = 0.5;
+                            utterance.pitch = 1.0;
+                            utterance.volume = 1.0;
+                            
+                            // 添加事件监听
+                            utterance.onstart = function() {{
+                                console.log('开始朗读: {st.session_state.current_text}');
+                            }};
+                            
+                            utterance.onend = function() {{
+                                console.log('朗读完成');
+                            }};
+                            
+                            utterance.onerror = function(event) {{
+                                console.log('朗读错误:', event.error);
+                            }};
+                            
+                            window.speechSynthesis.speak(utterance);
+                        }}, 100);
+                    }} else {{
+                        alert('您的浏览器不支持语音合成功能，请使用Chrome、Edge或Safari浏览器');
+                    }}
                 }}
+                
+                // 立即执行
+                speakText();
                 </script>
-                """,
-                unsafe_allow_html=True
-            )
+            </div>
+            """
+            components.html(speech_html, height=0)
             st.session_state.trigger_speech = False
             
-        # 添加键盘事件监听
-        st.markdown(
-            """
-            <script>
-            document.addEventListener('keydown', function(event) {
-                if (event.code === 'Space') {
-                    event.preventDefault();
-                    // 触发朗读按钮点击
-                    const buttons = document.querySelectorAll('button');
-                    for (let button of buttons) {
-                        if (button.textContent.includes('🔊 朗读')) {
-                            button.click();
-                            break;
-                        }
-                    }
-                }
-            });
-            </script>
-            """,
-            unsafe_allow_html=True
-        )
+        # 添加键盘事件监听 - 使用独立的HTML组件
+        keyboard_html = f"""
+        <script>
+        document.addEventListener('keydown', function(event) {{
+            if (event.code === 'Space') {{
+                event.preventDefault();
+                
+                // 直接触发语音合成
+                if ('speechSynthesis' in window) {{
+                    window.speechSynthesis.cancel();
+                    setTimeout(() => {{
+                        const utterance = new SpeechSynthesisUtterance('{st.session_state.current_text}');
+                        utterance.lang = 'zh-CN';
+                        utterance.rate = 0.5;
+                        utterance.pitch = 1.0;
+                        utterance.volume = 1.0;
+                        window.speechSynthesis.speak(utterance);
+                    }}, 100);
+                }}
+            }}
+        }});
+        </script>
+        """
+        components.html(keyboard_html, height=0)
         
     else:
         st.markdown(
