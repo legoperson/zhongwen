@@ -39,7 +39,20 @@ if not text_list:
 
 # 页面标题
 st.title("🔤 汉字随机显示器")
-st.write(f"总共有 {len(text_list)} 个字符")
+
+# 显示数据加载信息
+if text_list:
+    st.success(f"✅ 成功读取 {len(text_list)} 个字符")
+    
+    # 显示前10个字符作为示例
+    if len(text_list) >= 10:
+        sample_chars = "、".join(text_list[:10])
+        st.write(f"📋 前10个字符示例: {sample_chars}...")
+    else:
+        sample_chars = "、".join(text_list)
+        st.write(f"📋 所有字符: {sample_chars}")
+else:
+    st.error("❌ 未能读取到任何字符")
 
 # 初始化状态
 if 'current_text' not in st.session_state:
@@ -66,7 +79,7 @@ with col1:
 with col2:
     max_index = st.number_input(
         "结束位置 (到第几个字结束)", 
-        min_value=min_index, 
+        min_value=1, 
         max_value=len(text_list), 
         value=min(100, len(text_list)),
         step=1
@@ -76,11 +89,23 @@ with col2:
 interval = st.slider("显示间隔 (秒)", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
 st.session_state.interval = interval
 
+# 验证输入范围
+if min_index > max_index:
+    st.error("⚠️ 起始位置不能大于结束位置！")
+    st.stop()
+
+if max_index > len(text_list):
+    st.error(f"⚠️ 结束位置不能大于总字符数 ({len(text_list)})！")
+    st.stop()
+
 # 显示当前范围的预览
 st.info(f"将从第 {min_index} 个字到第 {max_index} 个字中随机选择显示 (共 {max_index - min_index + 1} 个字)")
 
 if max_index >= min_index and len(text_list) >= max_index:
-    preview_text = "、".join(text_list[min_index-1:min_index+4]) + "..." if max_index > min_index + 4 else "、".join(text_list[min_index-1:max_index])
+    preview_count = min(5, max_index - min_index + 1)
+    preview_text = "、".join(text_list[min_index-1:min_index-1+preview_count])
+    if max_index - min_index + 1 > 5:
+        preview_text += "..."
     st.write(f"预览: {preview_text}")
 
 # 控制按钮
