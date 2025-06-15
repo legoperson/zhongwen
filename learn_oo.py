@@ -215,3 +215,74 @@ with st.expander("使用说明"):
     
     **注意**: 位置编号从1开始计算，程序会自动转换为正确的数组索引。
     """)
+
+# 显示完整的字符表格
+st.markdown("---")
+st.subheader("📋 完整字符表")
+st.write("以下是所有字符及其对应的位置编号，每行显示20个字符：")
+
+if text_list:
+    # 创建表格数据
+    table_data = []
+    for i in range(0, len(text_list), 20):
+        row_chars = []
+        row_numbers = []
+        
+        # 获取这一行的字符和编号
+        for j in range(20):
+            if i + j < len(text_list):
+                row_chars.append(text_list[i + j])
+                row_numbers.append(str(i + j + 1))  # 位置编号从1开始
+            else:
+                row_chars.append("")
+                row_numbers.append("")
+        
+        # 添加字符行和编号行
+        table_data.append(row_chars)
+        table_data.append(row_numbers)
+    
+    # 创建DataFrame并显示
+    columns = [f"第{i+1}列" for i in range(20)]
+    df_display = pd.DataFrame(table_data, columns=columns)
+    
+    # 使用HTML表格显示，交替行颜色
+    html_table = "<table style='width:100%; border-collapse: collapse; font-size: 14px;'>"
+    
+    for idx, row in df_display.iterrows():
+        if idx % 2 == 0:  # 字符行
+            html_table += f"<tr style='background-color: #f8f9fa; border: 1px solid #dee2e6;'>"
+            for col in row:
+                if col:  # 如果不为空
+                    html_table += f"<td style='text-align: center; padding: 8px; font-size: 18px; font-weight: bold; border: 1px solid #dee2e6;'>{col}</td>"
+                else:
+                    html_table += f"<td style='text-align: center; padding: 8px; border: 1px solid #dee2e6;'></td>"
+        else:  # 编号行
+            html_table += f"<tr style='background-color: #e9ecef; border: 1px solid #dee2e6;'>"
+            for col in row:
+                if col:  # 如果不为空
+                    html_table += f"<td style='text-align: center; padding: 4px; font-size: 12px; color: #6c757d; border: 1px solid #dee2e6;'>#{col}</td>"
+                else:
+                    html_table += f"<td style='text-align: center; padding: 4px; border: 1px solid #dee2e6;'></td>"
+        html_table += "</tr>"
+    
+    html_table += "</table>"
+    
+    st.markdown(html_table, unsafe_allow_html=True)
+    
+    # 添加搜索功能
+    st.markdown("---")
+    st.subheader("🔍 查找字符")
+    search_char = st.text_input("输入要查找的字符：", placeholder="例如：的")
+    
+    if search_char:
+        positions = []
+        for i, char in enumerate(text_list):
+            if char == search_char:
+                positions.append(i + 1)  # 位置编号从1开始
+        
+        if positions:
+            st.success(f"找到字符 '{search_char}' 在以下位置：{', '.join(map(str, positions))}")
+        else:
+            st.warning(f"未找到字符 '{search_char}'")
+else:
+    st.error("没有字符数据可显示")
