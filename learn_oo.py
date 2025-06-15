@@ -63,6 +63,8 @@ if 'is_running' not in st.session_state:
     st.session_state.is_running = False
 if 'interval' not in st.session_state:
     st.session_state.interval = 5.0
+if 'trigger_speech' not in st.session_state:
+    st.session_state.trigger_speech = False
 
 # 创建两列布局
 col1, col2 = st.columns(2)
@@ -109,7 +111,7 @@ if max_index >= min_index and len(text_list) >= max_index:
     st.write(f"预览: {preview_text}")
 
 # 控制按钮
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     if st.button("▶️ 开始显示", disabled=st.session_state.is_running):
@@ -128,6 +130,14 @@ with col3:
             valid_text_list = text_list[min_index-1:max_index]
             if valid_text_list:
                 st.session_state.current_text = random.choice(valid_text_list)
+
+with col4:
+    if st.button("🔊 朗读", disabled=not st.session_state.current_text):
+        # 触发朗读并重新计时
+        st.session_state.trigger_speech = True
+        if st.session_state.is_running:
+            st.session_state.start_time = time.time()  # 重新计时
+        st.rerun()
 
 # 显示区域
 display_container = st.container()
@@ -176,6 +186,56 @@ with display_container:
             """, 
             unsafe_allow_html=True
         )
+        
+        # 添加语音合成功能
+        if st.session_state.trigger_speech:
+            st.markdown(
+                f"""
+                <script>
+                if ('speechSynthesis' in window) {{
+                    // 停止当前的语音
+                    window.speechSynthesis.cancel();
+                    
+                    // 创建新的语音
+                    const utterance = new SpeechSynthesisUtterance('{st.session_state.current_text}');
+                    utterance.lang = 'zh-CN';  // 设置为中文
+                    utterance.rate = 0.6;      // 语速慢一点 (0.1-10, 默认1)
+                    utterance.pitch = 1;       // 音调
+                    utterance.volume = 1;      // 音量
+                    
+                    // 开始朗读
+                    window.speechSynthesis.speak(utterance);
+                }} else {{
+                    console.log('浏览器不支持语音合成');
+                }}
+                </script>
+                """,
+                unsafe_allow_html=True
+            )
+            st.session_state.trigger_speech = False
+            
+        # 添加键盘事件监听
+        st.markdown(
+            """
+            <script>
+            document.addEventListener('keydown', function(event) {
+                if (event.code === 'Space') {
+                    event.preventDefault();
+                    // 触发朗读按钮点击
+                    const buttons = document.querySelectorAll('button');
+                    for (let button of buttons) {
+                        if (button.textContent.includes('🔊 朗读')) {
+                            button.click();
+                            break;
+                        }
+                    }
+                }
+            });
+            </script>
+            """,
+            unsafe_allow_html=True
+        )
+        
     else:
         st.markdown(
             """
@@ -212,8 +272,14 @@ with st.expander("使用说明"):
     3. **开始显示**: 点击"开始显示"按钮开始自动随机显示
     4. **暂停**: 点击"暂停"按钮停止自动显示
     5. **手动刷新**: 点击"手动刷新"立即显示一个新的随机字符
+    6. **🔊 朗读**: 点击"朗读"按钮或按下**空格键**朗读当前字符
+       - 朗读速度已调慢，便于学习
+       - 朗读后会重新开始计时（如果正在自动显示）
     
-    **注意**: 位置编号从1开始计算，程序会自动转换为正确的数组索引。
+    **注意**: 
+    - 位置编号从1开始计算，程序会自动转换为正确的数组索引
+    - 语音功能需要浏览器支持，建议使用Chrome或Edge浏览器
+    - 按空格键可以快速朗读当前字符
     """)
 
 # 显示完整的字符表格
