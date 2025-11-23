@@ -19,7 +19,7 @@ def load_data():
         # 创建一个空列表来存储结果
         text_list = []
         # 遍历CSV文件的行，步长为2（即奇数行是字，偶数行是对应的数字）
-        for i in range(0, len(df), 2):
+        for i in range(0, len(df), 1):
             characters = df.iloc[i].tolist()     # 获取奇数行的字符
             for j in characters:
                 if pd.notna(j):  # 确保不是NaN值
@@ -375,3 +375,4 @@ if text_list:
             st.warning(f"未找到字符 '{search_char}'")
 else:
     st.error("没有字符数据可显示")
+
